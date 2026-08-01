@@ -8,5 +8,8 @@ from the OS for a while (using MADV_DONTNEED or MADV_FREE) so it can reuse it qu
 than repeatedly asking the OS kernel for RAM.
 */
 func main() {
-	exercises.ExerciseOneFixed()
+	// exercises.ExerciseOneFixed()
+	// exercises.ExerciseTwoConcurrencyMap()
+	exercises.RWMutexSolution()
+	exercises.SyncMapSolution()
 }
