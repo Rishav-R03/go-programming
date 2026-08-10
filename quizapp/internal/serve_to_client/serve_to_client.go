@@ -5,9 +5,15 @@ import (
 	"quizapp/internal/model"
 )
 
-func ConductQuiz(probChan <-chan model.MathProblem) (int, error) {
+func ConductQuiz(probChan <-chan model.MathProblem) (string, string, int, error) {
 	score := 0
 	questionNum := 1
+	fmt.Println("Enter your name")
+	var name string
+	fmt.Scanf("%s\n", &name)
+	fmt.Println("Enter you rollno")
+	var rollNo string
+	fmt.Scanf("%s\n", &rollNo)
 
 	for problem := range probChan {
 		fmt.Printf("\nQuestion: %d: %s => ", questionNum, problem.Problem)
@@ -27,12 +33,9 @@ func ConductQuiz(probChan <-chan model.MathProblem) (int, error) {
 		}
 		questionNum++
 	}
-	return score, nil
+	return name, rollNo, score, nil
 }
 
 func VerifySolutionUpdateScore(solution int, input int) bool {
-	if solution == input {
-		return true
-	}
-	return false
+	return solution == input
 }

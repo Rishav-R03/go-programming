@@ -11,6 +11,7 @@ import (
 func main() {
 	fmt.Println("Welcome to our quiz application!")
 	filePath := "internal/csv/math_problems.csv"
+	output := "internal/results/results_csv.csv"
 
 	problems, err := csv.ReadMathProblemFromFile(filePath)
 	if err != nil {
@@ -23,10 +24,15 @@ func main() {
 	}
 
 	// Interactively serve problems and take user inputs
-	score, err := servetoclient.ConductQuiz(probChan)
+	name, rollno, score, err := servetoclient.ConductQuiz(probChan)
 	if err != nil {
 		log.Fatalf("error running quiz: %v", err)
 	}
 
-	fmt.Printf("\nQuiz completed! Final Score: %d / %d\n", score, len(problems))
+	err = csv.WriteResult(output, name, rollno, score)
+	if err != nil {
+		log.Printf("%v", err)
+	}
+
+	fmt.Printf("\nQuiz completed! Final Score: %d / %d\n.", score, len(problems))
 }
