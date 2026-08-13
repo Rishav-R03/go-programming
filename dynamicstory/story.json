@@ -1,0 +1,40 @@
+{
+  "intro": {
+    "title": "The Entrance to the Cave",
+    "story": [
+      "You stand before the mouth of a dark, damp cave. The air is cold and smells faintly of moss and old stone.",
+      "To your left, a wooden ladder leads up toward a illuminated ledge. Straight ahead, a dark passage disappears into total darkness."
+    ],
+    "options": [
+      {
+        "text": "Climb up the wooden ladder",
+        "arc": "ladder-arc"
+      },
+      {
+        "text": "Venture down the dark passage",
+        "arc": "dark-passage"
+      }
+    ]
+  },
+  "ladder-arc": {
+    "title": "The Upper Ledge",
+    "story": [
+      "You reach the top of the ladder and find a brightly lit room filled with ancient glowing runes.",
+      "Congratulations! You found the hidden treasure of the Gophers."
+    ],
+    "options": []
+  },
+  "dark-passage": {
+    "title": "The Pitch Black Hallway",
+    "story": [
+      "You take a few steps into the dark, but misstep and fall into a subterranean stream.",
+      "The current carries you away into the unknown depth..."
+    ],
+    "options": [
+      {
+        "text": "Try swimming back to the entrance",
+        "arc": "intro"
+      }
+    ]
+  }
+}
