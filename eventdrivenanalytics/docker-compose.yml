@@ -1,0 +1,49 @@
+version: "3.9"
+
+services:
+
+  oltp-db:
+    image: postgres:16
+    container_name: oltp-db
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: orders
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - oltp_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  olap-db:
+    image: postgres:16
+    container_name: olap-db
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: analytics
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - olap_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  oltp_data:
+  olap_data:

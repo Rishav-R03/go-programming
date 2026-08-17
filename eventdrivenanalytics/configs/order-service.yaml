@@ -1,0 +1,15 @@
+server:
+  port: 8000
+  read_timeout: 5s
+  write_timeout: 5s
+
+database:
+  host: localhost
+  port: 5432
+  user: postgres
+  password: postgres 
+  dbname: orders 
+
+context: 
+  create_order_timeout: 2s 
+
