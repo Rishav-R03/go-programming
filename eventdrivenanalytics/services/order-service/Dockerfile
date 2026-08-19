@@ -1,21 +1,25 @@
-FROM golang:1.25 AS builder
+FROM golang:1.26.5-alpine AS builder
 
 WORKDIR /app
+
+# 1. Optimizes caching by downloading dependencies before copying full source
+COPY go.mod go.sum ./
+RUN go mod download
 
 COPY . .
 
-RUN go mod download
-
-RUN go build \
+# 2. Builds a statically linked CGO-disabled binary (recommended for Alpine)
+RUN CGO_ENABLED=0 GOOS=linux go build \
     -o order-service \
     ./cmd/server
 
-FROM alpine
+FROM alpine:latest
 
 WORKDIR /app
 
-COPY --from=builder \
-    /app/order-service .
+# 3. Copy BOTH the compiled binary AND the config file
+COPY --from=builder /app/order-service .
+COPY --from=builder /app/internal/config/order-service.yaml ./config/order-service.yaml
 
 EXPOSE 8000
 

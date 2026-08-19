@@ -1,0 +1,1 @@
+DROP TABLE IF EXISTS fact_order_sales;

@@ -1,0 +1,13 @@
+source_db:
+  host: oltp-db
+  port: 5432
+  user: postgres
+  password: postgres
+  dbname: orders
+
+target_db:
+  host: olap-db
+  port: 5432
+  user: postgres
+  password: postgres
+  dbname: analytics

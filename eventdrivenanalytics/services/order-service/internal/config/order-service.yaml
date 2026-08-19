@@ -4,7 +4,7 @@ server:
   write_timeout: 5s
 
 database:
-  host: localhost
+  host: 'oltp-db'
   port: 5432
   user: postgres
   password: postgres 

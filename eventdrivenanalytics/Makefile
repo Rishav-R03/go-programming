@@ -16,3 +16,6 @@ psql:
 seed:
 	psql postgres://postgres:postgres@localhost:5432/orders \
 	-f database/oltp/seed/seed.sql
+
+analytics:
+	docker exec -it olap-db psql -U postgres -d analytics

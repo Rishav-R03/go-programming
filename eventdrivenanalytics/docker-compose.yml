@@ -44,6 +44,27 @@ services:
       timeout: 5s
       retries: 5
 
+  worker:
+    build:
+      context: ./services/cdc-worker
+
+    depends_on:
+      oltp-db:
+        condition: service_healthy
+      olap-db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  order-service:
+    build:
+      context: ./services/order-service
+    ports:
+      - "8000:8000"
+    depends_on:
+      oltp-db:
+        condition: service_healthy
+    restart: unless-stopped
+
 volumes:
   oltp_data:
   olap_data:

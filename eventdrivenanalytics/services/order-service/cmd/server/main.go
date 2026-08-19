@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	cfg, err := config.Load("../../configs/order-service.yaml")
+	cfg, err := config.Load("config/order-service.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
