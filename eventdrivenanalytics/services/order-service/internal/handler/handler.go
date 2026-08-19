@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"orderservice/internal/metrics"
 	"orderservice/internal/model"
 	"orderservice/internal/service"
 	"orderservice/internal/validator"
@@ -13,10 +14,14 @@ import (
 
 type OrderHandler struct {
 	service *service.OrderService
+	metrics *metrics.Metrics
 }
 
-func NewOrderHandler(s *service.OrderService) *OrderHandler {
-	return &OrderHandler{service: s}
+func NewOrderHandler(svc *service.OrderService, m *metrics.Metrics) *OrderHandler {
+	return &OrderHandler{
+		service: svc,
+		metrics: m,
+	}
 }
 
 func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
@@ -43,6 +48,7 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	resp := model.CreateOrderResponse{OrderID: orderID}
+	h.metrics.OrdersCreatedTotal.Inc()
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }
