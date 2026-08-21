@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: demo_postgres
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    ports:
+      - "5432:5432" # <--- THIS MAPS HOST 5432 TO CONTAINER 5432
+    volumes:
+      - ./init-scripts:/docker-entrypoint-initdb.d
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
