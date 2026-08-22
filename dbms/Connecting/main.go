@@ -22,7 +22,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Error connecting database %v\n", err)
 	}
-	db.Close()
+	defer db.Close()
 	if err := db.Ping(); err != nil {
 		log.Fatalf("Database ping failed: %v\n", err)
 	}
