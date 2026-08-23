@@ -3,7 +3,7 @@ version: '3.8'
 services:
   postgres:
     image: postgres:17-alpine
-    container_name: demo_postgres
+    container_name: pgxpoolvspgx
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
