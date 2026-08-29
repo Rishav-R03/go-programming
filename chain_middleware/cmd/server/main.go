@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -54,7 +55,7 @@ func Logging(next http.Handler) http.Handler {
 		start := time.Now()
 		wrapped := &responseWriterWrapper{ResponseWriter: w, statusCode: http.StatusOK}
 		next.ServeHTTP(wrapped, r)
-		log.Fatalf("[%s] %s %d -%v", r.Method, r.URL.Path, wrapped.statusCode, time.Since(start))
+		log.Printf("[%s] %s %d -%v", r.Method, r.URL.Path, wrapped.statusCode, time.Since(start))
 	})
 }
 
@@ -67,6 +68,57 @@ func Chain(h http.Handler, middlewares ...MiddleWare) http.Handler {
 	return h
 }
 
+func WithMiddleWare(h http.HandlerFunc, middlewares ...MiddleWare) http.Handler {
+	var handler http.Handler = h
+	for i := len(middlewares) - 1; i >= 0; i-- {
+		handler = middlewares[i](handler)
+	}
+	return handler
+}
+
+// Auth
+/**
+	RBAC requires a two-step process:
+
+    Authentication: Authenticate the user and attach their \
+	user ID/role to the request's context.Context.
+    Authorization (RBAC): Read the role from context.
+	Context and verify permissions.
+*/
+
+type ctxKey string
+
+const UserRoleKey ctxKey = "user_role"
+
+// Authenticates requests and stores roles in context
+func AuthMiddleWare(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		token := r.Header.Get("Authorization")
+		if token == "" {
+			http.Error(w, "Unauthorized: missing token", http.StatusUnauthorized)
+			return
+		}
+
+		userRole := "admin" // in production parse this from header or token
+		ctx := context.WithValue(r.Context(), UserRoleKey, userRole)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// RBAC takes required roles and returns a Middleware function
+func RBAC(reqRole string) MiddleWare {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			role, ok := r.Context().Value(UserRoleKey).(string)
+			if !ok || role != reqRole {
+				http.Error(w, "Forbidden: insufficient permissions", http.StatusForbidden)
+				return
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -77,6 +129,13 @@ func main() {
 		panic("something went horribly wrong!")
 	})
 
+	mux.Handle("/dashboard", WithMiddleWare(
+		func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintln(w, "Welcome to User Dashboard")
+		},
+		AuthMiddleWare,
+	))
+
 	// applyed middlewares globally
 	handler := Chain(
 		mux,
@@ -84,6 +143,14 @@ func main() {
 		Recovery,
 		CORS,
 	)
+
+	// per endpoint
+
+	// mux.Handle("/admin", WithMiddleWare(
+	// 	adminHandler,
+	// 	Logging,
+	// 	RBAC("admin"),
+	// ))
 
 	fmt.Println("Server running: http://localhost:8000")
 	if err := http.ListenAndServe(":8000", handler); err != nil {
