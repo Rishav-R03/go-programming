@@ -119,6 +119,15 @@ func RBAC(reqRole string) MiddleWare {
 	}
 }
 
+/*
+Summary TableConceptWhat It IsWhy It Matterstype ctxKey stringCustom Go type aliasPrevents key collision
+with string keys from other packages
+UserRoleKeyConstant identifier of type ctxKeyActs as the unique lookup key inside the
+context.Contextcontext.WithValueThread-safe context builderClones the request context to
+safely store request-scoped dataval.(string)
+Type assertionSafely converts Go's generic interface{} back to a string
+*/
+
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
