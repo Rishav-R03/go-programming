@@ -33,3 +33,4 @@ func LoadLuaScript(path string) (string, error) {
 	}
 	return string(content), nil
 }
+

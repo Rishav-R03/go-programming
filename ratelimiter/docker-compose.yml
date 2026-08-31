@@ -39,7 +39,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      POSTGRES_DSN: "postgres://ratelimiter:ratelimiter@postgres:5432/ratelimter?sslmode=disable"
+      POSTGRES_DSN: "postgres://ratelimiter:ratelimiter@postgres:5432/ratelimiter?sslmode=disable"
       REDIS_ADDR: "redis:6379"
       HTTP_PORT: "8000"
     ports:
