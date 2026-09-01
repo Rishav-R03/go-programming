@@ -68,7 +68,7 @@ func main() {
 	}
 
 	go func() {
-		log.Println("listening on: %s", cfg.HTTPport)
+		log.Printf("listening on: %s", cfg.HTTPport)
 		if err := server.ListenAndServe(); err != nil {
 			log.Fatalf("http server error: %v", err)
 		}

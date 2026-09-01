@@ -7,7 +7,7 @@
 #   RATE=500 DURATION=60s ./scripts/loadtest_vegeta.sh
 set -euo pipefail
 
-HOST="${HOST:-http://localhost:8080}"
+HOST="${HOST:-http://localhost:8000}"
 RATE="${RATE:-200}"       # requests/sec
 DURATION="${DURATION:-30s}"
 API_KEY="${API_KEY:-loadtest-client}"
