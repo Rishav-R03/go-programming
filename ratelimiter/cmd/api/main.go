@@ -10,8 +10,8 @@ import (
 	"ratelimiter/internal/analytics"
 	"ratelimiter/internal/config"
 	"ratelimiter/internal/db"
+	"ratelimiter/internal/middleware"
 	"ratelimiter/internal/ratelimiter"
-	"strconv"
 	"syscall"
 	"time"
 )
@@ -32,6 +32,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("redis init failed: %v", err)
 	}
+	defer rdb.Close()
+	log.Println("connected to redis")
 
 	script, err := db.LoadLuaScript("scripts/sliding_window.lua")
 	if err != nil {
@@ -52,46 +54,13 @@ func main() {
 		w.Write([]byte("ok"))
 	})
 
-	mux.HandleFunc("/check", func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		clientID := r.Header.Get("X-API-KEY")
-		if clientID == "" {
-			clientID = r.RemoteAddr
-		}
-		policy := policies.Get(clientID)
-		allowed, remaining, err := limiter.Allow(r.Context(), clientID, policy)
-		if err != nil {
-			log.Printf("limiter error: %v", err)
-			http.Error(w, "Internal error", http.StatusInternalServerError)
-			return
-		}
-		status := analytics.StatusAllowed
-		if !allowed {
-			status = analytics.StatusBlocked
-		}
-		collector.Submit(analytics.MetricEvent{
-			ClientID:  clientID,
-			Timestamp: start,
-			Status:    status,
-			LatencyMs: float64(time.Since(start).Microseconds()),
-		})
-
-		w.Header().Set("X-RateLimit-Limit", strconv.Itoa(policy.Limit))
-		w.Header().Set("X-RateLimit-Remaining", strconv.Itoa(remaining))
+	target := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-
-		if !allowed {
-			w.WriteHeader(http.StatusTooManyRequests)
-			json.NewEncoder(w).Encode(map[string]string{"error": "rate limit exceeded"})
-			return
-		}
-
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"allowed":   true,
-			"remaining": remaining,
-		})
+		json.NewEncoder(w).Encode(map[string]bool{"allowed": true})
 	})
+	rateLimited := middleware.RateLimit(limiter, policies, collector)(target)
+	mux.Handle("/check", rateLimited)
 
 	server := &http.Server{
 		Addr:    ":" + cfg.HTTPport,
