@@ -59,8 +59,7 @@ func Logging(next http.Handler) http.Handler {
 	})
 }
 
-// Create helper
-
+// Create helper to inject middlewares
 func Chain(h http.Handler, middlewares ...MiddleWare) http.Handler {
 	for i := len(middlewares) - 1; i >= 0; i-- {
 		h = middlewares[i](h)
