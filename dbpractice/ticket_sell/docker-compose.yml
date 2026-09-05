@@ -1,0 +1,16 @@
+services:
+  postgresdb:
+    image: postgres:17-alpine
+    container_name: psqlcontainer
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin 
+      POSTGRES_DB: ticketdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgData:/var/lib/postgresql/data
+
+volumes:
+  pgData:
